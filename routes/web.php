@@ -85,6 +85,10 @@ Route::middleware(['auth', 'role:admin|superadmin'])->prefix('admin')->name('adm
     Route::post('/users/{user}/toggle-status', [\App\Http\Controllers\Admin\UserStatusController::class , 'toggle'])->name('users.toggle-status');
 
     // Personnel Management
+    Route::get('/personnel/template', [\App\Http\Controllers\Admin\PersonnelController::class , 'downloadTemplate'])->name('personnel.template');
+    Route::post('/personnel/import', [\App\Http\Controllers\Admin\PersonnelController::class , 'import'])->name('personnel.import');
+    Route::delete('/personnel/bulk-delete', [\App\Http\Controllers\Admin\PersonnelController::class , 'bulkDeleteBySatker'])->name('personnel.bulk-delete');
+    Route::get('/personnel/print-satker', [\App\Http\Controllers\Admin\PersonnelController::class , 'printSatker'])->name('personnel.print-satker');
     Route::get('/personnel', [\App\Http\Controllers\Admin\PersonnelController::class , 'index'])->name('personnel.index');
     Route::post('/personnel', [\App\Http\Controllers\Admin\PersonnelController::class , 'store'])->name('personnel.store');
     Route::put('/personnel/{personnel}', [\App\Http\Controllers\Admin\PersonnelController::class , 'update'])->name('personnel.update');

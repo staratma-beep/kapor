@@ -10,9 +10,15 @@
             <h1 class="page-title">Personel</h1>
             <p class="page-subtitle">Direktori personel dan informasi kapor</p>
         </div>
-        <div class="page-header-actions" style="display: flex; gap: 12px;">
+        <div class="page-header-actions" style="display: flex; gap: 12px; align-items: center;">
+            <button class="btn btn-outline" onclick="openModal('bulkDeleteModal')" style="display: flex; align-items: center; gap: 8px; border-radius: 10px; padding: 10px 18px; font-weight: 600; border-color: #FEE2E2; color: #B91C1C;">
+                <i class="ri-delete-bin-line"></i> Hapus per Satker
+            </button>
             <button class="btn btn-outline" onclick="openModal('importModal')" style="display: flex; align-items: center; gap: 8px; border-radius: 10px; padding: 10px 18px; font-weight: 600; border-color: #E5E7EB; color: #374151;">
-                <i class="ri-file-upload-line" style="color: #B91C1C;"></i> Impor CSV
+                <i class="ri-file-upload-line" style="color: #B91C1C;"></i> Impor Excel
+            </button>
+            <button class="btn" onclick="openModal('printSatkerModal')" style="display: flex; align-items: center; gap: 8px; border-radius: 10px; padding: 10px 18px; font-weight: 700; background: #059669; color: white; border: none; cursor: pointer;">
+                <i class="ri-printer-line"></i> Cetak Satker
             </button>
             <button class="btn btn-primary" onclick="openModal('addPersonnelModal')" style="display: flex; align-items: center; gap: 8px; border-radius: 10px; padding: 10px 18px; font-weight: 700;">
                 <i class="ri-user-add-line"></i> Tambah Personel
@@ -224,6 +230,205 @@
             </div>
         </div>
         <?php endif; ?>
+    </div>
+</div>
+
+
+<div id="bulkDeleteModal" class="modal">
+    <div class="modal-content" style="max-width: 500px;">
+        <div class="modal-header">
+            <h3 style="margin: 0; font-size: 18px; font-weight: 700; color: #DC2626;">Hapus Seluruh Data per Satker</h3>
+            <button class="close-btn" onclick="closeModal('bulkDeleteModal')">&times;</button>
+        </div>
+        <form action="<?php echo e(route('admin.personnel.bulk-delete')); ?>" method="POST">
+            <?php echo csrf_field(); ?>
+            <?php echo method_field('DELETE'); ?>
+            <div class="modal-body" style="padding: 24px;">
+                <div style="background: #FEF2F2; border: 1px solid #FEE2E2; border-radius: 12px; padding: 16px; margin-bottom: 20px;">
+                    <div style="display: flex; gap: 12px;">
+                        <i class="ri-error-warning-line" style="font-size: 24px; color: #DC2626;"></i>
+                        <div>
+                            <h4 style="font-size: 14px; font-weight: 700; color: #991B1B; margin-bottom: 4px;">Peringatan Keamanan</h4>
+                            <p style="font-size: 13px; color: #B91C1C; line-height: 1.5;">Tindakan ini akan menghapus <strong>SELURUH</strong> data personil, akun login, dan riwayat ukuran kapor pada Satker yang dipilih. Tindakan ini tidak dapat dibatalkan.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label style="font-weight: 700; color: #374151;">Pilih Satuan Kerja (Satker) <span style="color: #EF4444;">*</span></label>
+                    <div class="custom-select-wrapper">
+                        <div class="custom-select" onclick="toggleDropdown(this)">
+                            <div class="select-trigger">
+                                <span id="bulk_delete_satker_label">-- Pilih Satker --</span>
+                                <i class="ri-arrow-down-s-line"></i>
+                            </div>
+                            <div class="custom-options">
+                                <div class="options-scroll">
+                                    <?php $__currentLoopData = $satkers; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $s): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <div class="option" data-value="<?php echo e($s->id); ?>" data-label="<?php echo e($s->name); ?>" onclick="selectSatkerOptionSimple(this, 'bulk_delete')"><?php echo e($s->name); ?></div>
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="hidden" name="satker_id" id="bulk_delete_satker_id" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label style="font-weight: 700; color: #374151;">Konfirmasi Penghapusan <span style="color: #EF4444;">*</span></label>
+                    <p style="font-size: 12px; color: #6B7280; margin-bottom: 8px;">Ketik kata <strong>HAPUS</strong> di bawah ini untuk mengonfirmasi.</p>
+                    <input type="text" name="confirm_text" required placeholder="Ketik HAPUS" class="form-input" style="padding: 10px;">
+                </div>
+            </div>
+            <div class="modal-footer" style="padding: 16px 24px; background: #F9FAFB; border-bottom-left-radius: 16px; border-bottom-right-radius: 16px; display: flex; justify-content: flex-end; gap: 12px;">
+                <button type="button" class="btn btn-outline" onclick="closeModal('bulkDeleteModal')">Batal</button>
+                <button type="submit" class="btn" style="background: #DC2626; color: white; border: none; padding: 10px 24px; border-radius: 8px; font-weight: 700; cursor: pointer;">
+                    <i class="ri-delete-bin-line"></i> Hapus Semua Data
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<div id="importModal" class="modal">
+    <div class="modal-content" style="max-width: 800px;">
+        <div class="modal-header">
+            <h3 style="margin: 0; font-size: 18px; font-weight: 700; color: #111827;">Impor Data Personel & Ukuran Kapor</h3>
+            <button class="close-btn" onclick="closeModal('importModal')">&times;</button>
+        </div>
+        <form action="<?php echo e(route('admin.personnel.import')); ?>" method="POST" enctype="multipart/form-data">
+            <?php echo csrf_field(); ?>
+            <div class="modal-body" style="padding: 24px;">
+                <div style="background: #FFF7ED; border: 1px solid #FFEDD5; border-radius: 12px; padding: 16px; margin-bottom: 20px;">
+                    <div style="display: flex; gap: 12px;">
+                        <i class="ri-information-line" style="font-size: 24px; color: #F97316;"></i>
+                        <div>
+                            <h4 style="font-size: 14px; font-weight: 700; color: #9A3412; margin-bottom: 4px;">Instruksi Format Import</h4>
+                            <p style="font-size: 13px; color: #C2410C; line-height: 1.5;">Gunakan tombol di bawah untuk mengunduh format yang benar. Anda bisa langsung memasukkan ukuran kapor pada kolom yang tersedia di bagian akhir file.</p>
+                            <a href="<?php echo e(route('admin.personnel.template')); ?>" class="btn btn-primary" style="background: #B91C1C; margin-top: 12px; font-size: 13px; display: inline-flex; align-items: center; gap: 8px;">
+                                <i class="ri-download-cloud-2-line"></i> Unduh Tabel Format Import (Excel)
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 24px;">
+                    <h5 style="font-size: 14px; font-weight: 700; color: #374151; margin-bottom: 12px;">Struktur Tabel Excel (Data mulai baris 11):</h5>
+                    <div style="overflow-x: auto; border: 1px solid #E5E7EB; border-radius: 8px;">
+                        <table style="width: 100%; border-collapse: collapse; font-size: 12px; text-align: left;">
+                            <thead>
+                                <tr style="background: #F9FAFB;">
+                                    <th style="padding: 10px; border-bottom: 1px solid #E5E7EB;">Kolom</th>
+                                    <th style="padding: 10px; border-bottom: 1px solid #E5E7EB;">Wajib</th>
+                                    <th style="padding: 10px; border-bottom: 1px solid #E5E7EB;">Isi / Keterangan</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="padding: 10px; border-bottom: 1px solid #F3F4F6; font-weight: 700; color: #374151;">NAMA LENGKAP</td>
+                                    <td style="padding: 10px; border-bottom: 1px solid #F3F4F6; color: #EF4444;">Ya</td>
+                                    <td style="padding: 10px; border-bottom: 1px solid #F3F4F6;">Tanpa gelar (Contoh: BUDI SANTOSO) - <strong>Kolom B</strong>.</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 10px; border-bottom: 1px solid #F3F4F6; font-weight: 700; color: #374151;">PANGKAT</td>
+                                    <td style="padding: 10px; border-bottom: 1px solid #F3F4F6; color: #EF4444;">Ya</td>
+                                    <td style="padding: 10px; border-bottom: 1px solid #F3F4F6;">Gunakan singkatan standar (Contoh: BRIPDA, AKP, KOMBES POL, PENATA) - <strong>Kolom C</strong>.</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 10px; border-bottom: 1px solid #F3F4F6; font-weight: 700; color: #374151;">GOLONGAN</td>
+                                    <td style="padding: 10px; border-bottom: 1px solid #F3F4F6; color: #EF4444;">Ya</td>
+                                    <td style="padding: 10px; border-bottom: 1px solid #F3F4F6;">Isi kategori pangkat (Contoh: PATI, PAMEN, PAMA, BINTARA, IV/a, III/b) - <strong>Kolom D</strong>.</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 10px; border-bottom: 1px solid #F3F4F6; font-weight: 700; color: #374151;">NRP / NIP</td>
+                                    <td style="padding: 10px; border-bottom: 1px solid #F3F4F6; color: #EF4444;">Ya</td>
+                                    <td style="padding: 10px; border-bottom: 1px solid #F3F4F6;">Identitas unik. Wajib diisi benar karena akan menjadi <strong>username & password</strong> login personel - <strong>Kolom E</strong>.</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 10px; border-bottom: 1px solid #F3F4F6; font-weight: 700; color: #374151;">JABATAN</td>
+                                    <td style="padding: 10px; border-bottom: 1px solid #F3F4F6; color: #EF4444;">Ya</td>
+                                    <td style="padding: 10px; border-bottom: 1px solid #F3F4F6;">Nama jabatan resmi (Contoh: KANIT, BANUM, dsb) - <strong>Kolom F</strong>.</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 10px; border-bottom: 1px solid #F3F4F6; font-weight: 700; color: #374151;">BAG / FUNGSI</td>
+                                    <td style="padding: 10px; border-bottom: 1px solid #F3F4F6; color: #EF4444;">Ya</td>
+                                    <td style="padding: 10px; border-bottom: 1px solid #F3F4F6;">
+                                        Satuan fungsi (Contoh: BAG PAL, BAG ADA, dsb) - <strong>Kolom G</strong>. 
+                                        <div style="margin-top: 4px; font-size: 11px; color: #6B7280; font-style: italic;">Note: Diisi sesuai KEP Penempatan karena berpengaruh pada jenis kapor yang diterima.</div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 10px; border-bottom: 1px solid #F3F4F6; font-weight: 700; color: #374151;">JENIS KELAMIN</td>
+                                    <td style="padding: 10px; border-bottom: 1px solid #F3F4F6;">Tidak</td>
+                                    <td style="padding: 10px; border-bottom: 1px solid #F3F4F6;">Isi dengan <strong>P</strong> (Pria) atau <strong>W</strong> (Wanita) - <strong>Kolom H</strong>.</td>
+                                </tr>
+                                <tr style="background: #FEF2F2;">
+                                    <td style="padding: 10px; border-bottom: 1px solid #F3F4F6; font-weight: 700; color: #374151;">DATA UKURAN</td>
+                                    <td style="padding: 10px; border-bottom: 1px solid #F3F4F6;">Tidak</td>
+                                    <td style="padding: 10px; border-bottom: 1px solid #F3F4F6;">
+                                        <div style="font-weight: 700; margin-bottom: 4px; color: #111827;">PANDUAN ISI UKURAN (Kolom I s/d Q):</div>
+                                        <ul style="margin: 0; padding-left: 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 4px; font-size: 11px;">
+                                            <li><strong>T. Kepala:</strong> 54 s/d 60</li>
+                                            <li><strong>Kemeja:</strong> Pria: 14-22 | Wan: K, SD, B, EB, EEB, EEEB, EEEEB</li>
+                                            <li><strong>Celana/Rok:</strong> Pria: 27-50 | Wan: K, SD, B, EB, EEB, EEEB, EEEEB</li>
+                                            <li><strong>T-Shirt/Jaket:</strong> K, SD, B, EB, EEB, EEEB, EEEEB</li>
+                                            <li><strong>Sepatu:</strong> 36 s/d 48</li>
+                                            <li><strong>Sabuk:</strong> 36, 38, ..., 60 (Genap)</li>
+                                            <li><strong>Jilbab:</strong> K, SD, B</li>
+                                        </ul>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 10px; border-bottom: 1px solid #F3F4F6; font-weight: 700; color: #374151;">KETERANGAN</td>
+                                    <td style="padding: 10px; border-bottom: 1px solid #F3F4F6;">Tidak</td>
+                                    <td style="padding: 10px; border-bottom: 1px solid #F3F4F6;">Catatan tambahan - <strong>Kolom R</strong>.</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="3" style="padding: 12px; background: #F8FAFC; font-size: 11px; color: #475569;">
+                                        <strong>KHUSUS POLRES, ISI BAG/FUNGSI SEBAGAI BERIKUT:</strong><br>
+                                        BAG OPS, BAG REN, BAG SDM, BA POLRES (BAG SDM), BAG LOG, SI WAS, SIHUMAS, SIKUM, SI TIK, SIUM, SIKEU, SI DOKKES, SI PROPAM, SAT BINMAS, SAT SAMAPTA, SAT PAMOBVIT, SAT LANTAS, SAT POLAIRUD, SAT TAHTI, SPKT, SAT INTELKAM, SAT RESKRIM, SAT RESNARKOBA.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label style="font-weight: 700; color: #374151;">Pilih Satuan Kerja (Satker) Tujuan <span style="color: #EF4444;">*</span></label>
+                    <div class="custom-select-wrapper">
+                        <div class="custom-select" onclick="toggleDropdown(this)">
+                            <div class="select-trigger">
+                                <span id="import_satker_label">-- Pilih Satker --</span>
+                                <i class="ri-arrow-down-s-line"></i>
+                            </div>
+                            <div class="custom-options">
+                                <div class="options-scroll">
+                                    <?php $__currentLoopData = $satkers; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $s): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <div class="option" data-value="<?php echo e($s->id); ?>" data-label="<?php echo e($s->name); ?>" onclick="selectSatkerOptionSimple(this, 'import')"><?php echo e($s->name); ?></div>
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="hidden" name="satker_id" id="import_satker_id" required>
+                    </div>
+                    <p style="font-size: 12px; color: #6B7280; margin-top: 4px;">Pilih satker yang sesuai dengan isi file yang akan diimport.</p>
+                </div>
+
+                <div class="form-group">
+                    <label style="font-weight: 700; color: #374151;">Pilih File Excel/CSV Hasil Pengisian <span style="color: #EF4444;">*</span></label>
+                    <input type="file" name="file" accept=".xlsx,.xls,.csv" required class="form-input" style="padding: 12px; border: 2px dashed #E5E7EB; background: #F9FAFB;">
+                    <p style="font-size: 12px; color: #6B7280; margin-top: 8px;">Format yang didukung: .xlsx, .xls, atau .csv</p>
+                </div>
+            </div>
+            <div class="modal-footer" style="padding: 16px 24px; background: #F9FAFB; border-bottom-left-radius: 16px; border-bottom-right-radius: 16px; display: flex; justify-content: flex-end; gap: 12px;">
+                <button type="button" class="btn btn-outline" onclick="closeModal('importModal')">Tutup</button>
+                <button type="submit" class="btn btn-primary" style="background: #B91C1C; padding-left: 30px; padding-right: 30px;">
+                    <i class="ri-upload-2-line"></i> Proses Import Sekarang
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 
@@ -866,6 +1071,79 @@ unset($__errorArgs, $__bag); ?>
 
 
 <div id="toastContainer" class="toast-container"></div>
+
+
+<div id="printSatkerModal" class="modal">
+    <div class="modal-content" style="max-width: 500px;">
+        <div class="modal-header">
+            <h2 class="modal-title">Cetak Laporan Satker</h2>
+            <button class="modal-close" onclick="closeModal('printSatkerModal')">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p style="font-size: 14px; color: #64748B; margin-bottom: 24px;">Pilih Satker yang ingin dicetak laporannya ke dalam format PDF.</p>
+            
+            <form action="<?php echo e(route('admin.personnel.print-satker')); ?>" method="GET" target="_blank" id="printSatkerForm">
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label>SATKER / SATWILL</label>
+                    <div class="custom-select-wrapper">
+                        <div class="custom-select" onclick="toggleDropdown(this)">
+                            <div class="select-trigger">
+                                <span id="print_satker_label">Pilih Satker</span>
+                                <i class="ri-arrow-down-s-line"></i>
+                            </div>
+                            <div class="custom-options">
+                                <div class="options-scroll">
+                                    <?php $__currentLoopData = $satkers; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $satker): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <div class="option" data-value="<?php echo e($satker->id); ?>" data-label="<?php echo e($satker->name); ?>" onclick="selectPrintSatker(this)">
+                                            <?php echo e($satker->name); ?>
+
+                                        </div>
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="hidden" name="satker_id" id="print_satker_id" required>
+                    </div>
+                </div>
+
+                <div class="form-grid" style="grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+                    <div class="form-group">
+                        <label>TAHUN ANGGARAN</label>
+                        <input type="text" name="fiscal_year" value="<?php echo e(\App\Models\Setting::getValue('fiscal_year', date('Y'))); ?>" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label>TEMPAT CETAK</label>
+                        <input type="text" name="location" value="Mataram" class="form-input">
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 12px;">
+                    <label>JABATAN PENANDA TANGAN</label>
+                    <input type="text" name="signatory_role" value="KASUBBAG RENMIN KABAG LOG" class="form-input">
+                </div>
+
+                <div class="form-group" style="margin-bottom: 12px;">
+                    <label>NAMA PEJABAT</label>
+                    <input type="text" name="signatory_name" placeholder="Nama Lengkap Pejabat" class="form-input">
+                </div>
+
+                <div class="form-group">
+                    <label>PANGKAT / NRP</label>
+                    <input type="text" name="signatory_nrp" placeholder="Pangkat & NRP/NIP" class="form-input">
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-cancel" onclick="closeModal('printSatkerModal')">Batal</button>
+            <button class="btn" style="background: #3B82F6; color: white; border: none; padding: 0 20px; height: 46px; border-radius: 10px; font-weight: 600; cursor: pointer;" onclick="previewPrintSatker()">
+                <i class="ri-eye-line" style="margin-right: 6px;"></i> Lihat Preview
+            </button>
+            <button class="btn-save" style="background: #059669; border: none;" onclick="downloadPrintSatker()">
+                <i class="ri-download-line" style="margin-right: 6px;"></i> Download PDF
+            </button>
+        </div>
+    </div>
+</div>
 
 <?php $__env->stopSection(); ?>
 
@@ -1544,6 +1822,8 @@ unset($__errorArgs, $__bag); ?>
         font-weight: 500;
         text-transform: none;
     }
+
+
 </style>
 <?php $__env->stopSection(); ?>
 
@@ -1621,6 +1901,26 @@ unset($__errorArgs, $__bag); ?>
         el.closest('.custom-select').classList.remove('active');
         
         event.stopPropagation();
+    }
+
+    function selectSatkerOptionSimple(el, type) {
+        const value = el.dataset.value;
+        const label = el.dataset.label;
+        
+        // Update Satker
+        document.getElementById(type + '_satker_id').value = value;
+        document.getElementById(type + '_satker_label').innerText = label;
+        
+        // Visual feedback
+        const wrapper = el.closest('.custom-select-wrapper');
+        wrapper.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
+        el.classList.add('selected');
+        
+        // Close dropdown
+        el.closest('.custom-select').querySelector('.custom-options').style.display = 'none';
+        el.closest('.custom-select').classList.remove('active');
+        
+        if (event) event.stopPropagation();
     }
 
     function updateBagianVisibility(satkerName, type, currentBagian = '') {
@@ -1840,22 +2140,26 @@ unset($__errorArgs, $__bag); ?>
         const mContainer = document.getElementById('detail_measurements');
         mContainer.innerHTML = '';
         
-        if (p.submissions && p.submissions.length > 0) {
-            p.submissions.forEach(sub => {
-                const item = sub.kapor_item ? sub.kapor_item.item_name : 'Unknown Item';
-                const size = sub.kapor_size ? sub.kapor_size.size_label : '-';
-                
-                const div = document.createElement('div');
-                div.innerHTML = `
-                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: #F9FAFB; border-radius: 8px; border: 1px solid #F3F4F6;">
-                        <span style="font-size: 14px; font-weight: 500; color: #6B7280;">${item}</span>
-                        <span style="font-size: 14px; font-weight: 700; color: #111827;">${size}</span>
-                    </div>
-                `;
-                mContainer.appendChild(div);
-            });
-        } else {
-            mContainer.innerHTML = '<div style="grid-column: span 2; font-size: 13px; color: #9CA3AF; font-style: italic; text-align: center; padding: 12px;">Belum ada data ukuran.</div>';
+        // Use the global kaporItems from PHP to ensure we show all active items in order
+        const allItems = <?php echo json_encode($kaporItems, 15, 512) ?>;
+        
+        allItems.forEach(item => {
+            // Find if this person has a submission for this item
+            const sub = (p.submissions || []).find(s => s.kapor_item_id === item.id);
+            const sizeLabel = (sub && sub.kapor_size) ? sub.kapor_size.size_label : '—';
+            
+            const div = document.createElement('div');
+            div.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: #F9FAFB; border-radius: 8px; border: 1px solid #F3F4F6;">
+                    <span style="font-size: 13px; font-weight: 500; color: #6B7280;">${item.item_name}</span>
+                    <span style="font-size: 14px; font-weight: 700; color: #111827;">${sizeLabel}</span>
+                </div>
+            `;
+            mContainer.appendChild(div);
+        });
+
+        if (allItems.length === 0) {
+            mContainer.innerHTML = '<div style="grid-column: span 2; font-size: 13px; color: #9CA3AF; font-style: italic; text-align: center; padding: 12px;">Belum ada data kapor aktif.</div>';
         }
 
         openModal('detailPersonnelModal');
@@ -2123,6 +2427,55 @@ unset($__errorArgs, $__bag); ?>
                 <?php endif; ?>
             <?php endif; ?>
         <?php endif; ?>
+    }
+    function selectPrintSatker(el) {
+        const value = el.dataset.value;
+        const label = el.dataset.label;
+        
+        document.getElementById('print_satker_id').value = value;
+        document.getElementById('print_satker_label').innerText = label;
+        
+        // Visual feedback
+        const wrapper = el.closest('.custom-select-wrapper');
+        wrapper.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
+        el.classList.add('selected');
+        
+        // Close dropdown
+        el.closest('.custom-select').querySelector('.custom-options').style.display = 'none';
+        el.closest('.custom-select').classList.remove('active');
+        
+        if (event) event.stopPropagation();
+    }
+    function previewPrintSatker() {
+        const form = document.getElementById('printSatkerForm');
+        const satkerId = document.getElementById('print_satker_id').value;
+        
+        if (!satkerId) {
+            showToast('Silakan pilih satker terlebih dahulu', 'error');
+            return;
+        }
+
+        form.target = "_blank";
+        form.submit();
+        closeModal('printSatkerModal');
+    }
+
+    function downloadPrintSatker() {
+        const form = document.getElementById('printSatkerForm');
+        const satkerId = document.getElementById('print_satker_id').value;
+        
+        if (!satkerId) {
+            showToast('Silakan pilih satker terlebih dahulu', 'error');
+            return;
+        }
+
+        // For direct download, we can use the same route or add a query param if needed
+        // Since the current stream is set to inline, we'll just let the form submit normally
+        // The user can download from the preview, or we could change the controller behavior
+        // But for now, let's just make it submit to a new tab as well to ensure it opens.
+        form.target = "_blank";
+        form.submit();
+        closeModal('printSatkerModal');
     }
 </script>
 <?php $__env->stopSection(); ?>
