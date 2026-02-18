@@ -8,7 +8,7 @@
     <div class="page-header-row" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
         <div>
             <h1 class="page-title">Personel</h1>
-            <p class="page-subtitle">Direktori personel dan informasi kapor</p>
+            <p class="page-subtitle">Direktorii personel dan informasi kapor</p>
         </div>
         <div class="page-header-actions" style="display: flex; gap: 12px; align-items: center;">
             <button class="btn btn-outline" onclick="openModal('bulkDeleteModal')" style="display: flex; align-items: center; gap: 8px; border-radius: 10px; padding: 10px 18px; font-weight: 600; border-color: #FEE2E2; color: #B91C1C;">
