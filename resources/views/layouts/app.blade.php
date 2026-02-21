@@ -495,6 +495,9 @@
                 <a href="{{ route('admin.personnel.index') }}" class="nav-link {{ request()->routeIs('admin.personnel.*') ? 'active' : '' }}">
                     <i class="ri-team-line"></i> Data Personel
                 </a>
+                <a href="{{ route('admin.kapor-items.index') }}" class="nav-link {{ request()->routeIs('admin.kapor-items.*') ? 'active' : '' }}">
+                    <i class="ri-t-shirt-2-line"></i> Data Item Kapor
+                </a>
                 <a href="{{ route('admin.reports') }}" class="nav-link {{ request()->routeIs('admin.reports*') ? 'active' : '' }}">
                     <i class="ri-bar-chart-grouped-line"></i> Laporan
                 </a>

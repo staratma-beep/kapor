@@ -18,73 +18,22 @@ class KaporItemSeeder extends Seeder
         Schema::enableForeignKeyConstraints();
 
         $items = [
-            // 1. KEMEJA (Gender Specific Sizes) -> Tutup_Badan
-            [
-                'category' => 'Tutup_Badan',
-                'item_name' => 'Kemeja',
-                'sizes_config' => [
-                    'L' => ['14', '14.5', '15', '15.5', '16', '16.5', '17', '17.5', '18', '18.5', '19', '19.5', '20', '21', '22'],
-                    'P' => ['K', 'SD', 'B', 'EB', 'EEB', 'EEEB', 'EEEEB']
-                ]
-            ],
-            // 2. CELANA/ROK (Gender Specific Sizes) -> Tutup_Badan
-            [
-                'category' => 'Tutup_Badan',
-                'item_name' => 'Celana/Rok',
-                'sizes_config' => [
-                    'L' => range(27, 50),
-                    'P' => ['K', 'SD', 'B', 'EB', 'EEB', 'EEEB', 'EEEEB']
-                ]
-            ],
-            // 3. T-SHIRT/OLAHRAGA (Universal) -> Tutup_Badan
-            [
-                'category' => 'Tutup_Badan',
-                'item_name' => 'T-Shirt/Olahraga',
-                'sizes_config' => [
-                    'U' => ['K', 'SD', 'B', 'EB', 'EEB', 'EEEB', 'EEEEB']
-                ]
-            ],
-            // 4. JAKET (Universal) -> Tutup_Badan
-            [
-                'category' => 'Tutup_Badan',
-                'item_name' => 'Jaket',
-                'sizes_config' => [
-                    'U' => ['K', 'SD', 'B', 'EB', 'EEB', 'EEEB', 'EEEEB']
-                ]
-            ],
-            // 5. SEPATU DINAS (Universal numeric 36-48) -> Tutup_Kaki
-            [
-                'category' => 'Tutup_Kaki',
-                'item_name' => 'Sepatu Dinas',
-                'sizes_config' => [
-                    'U' => range(36, 48)
-                ]
-            ],
-            // 6. SEPATU OLAHRAGA (Universal numeric 36-48) -> Tutup_Kaki
-            [
-                'category' => 'Tutup_Kaki',
-                'item_name' => 'Sepatu Olahraga',
-                'sizes_config' => [
-                    'U' => range(36, 48)
-                ]
-            ],
-            // 7. SABUK (Universal numeric 36-60 even) -> Atribut
-            [
-                'category' => 'Atribut',
-                'item_name' => 'Sabuk',
-                'sizes_config' => [
-                    'U' => range(36, 60, 2)
-                ]
-            ],
-            // 8. JILBAB (Women Only) -> Tutup_Kepala
-            [
-                'category' => 'Tutup_Kepala',
-                'item_name' => 'Jilbab',
-                'gender_specific' => 'P',
-                'sizes_config' => [
-                    'P' => ['K', 'SD', 'B']
-                ]
-            ],
+            // --- TUTUP KEPALA ---
+            ['category' => 'Tutup_Kepala', 'item_name' => 'Topi Lapangan', 'sizes_config' => ['U' => range(54, 60)]],
+            ['category' => 'Tutup_Kepala', 'item_name' => 'Pet', 'sizes_config' => ['U' => range(54, 60)]],
+            ['category' => 'Tutup_Kepala', 'item_name' => 'Baret', 'sizes_config' => ['U' => range(54, 60)]],
+            ['category' => 'Tutup_Kepala', 'item_name' => 'Peci', 'sizes_config' => ['U' => range(54, 60)]],
+            ['category' => 'Tutup_Kepala', 'item_name' => 'Jilbab', 'sizes_config' => ['U' => ['S', 'M', 'L', 'XL']]],
+
+            // --- TUTUP BADAN ---
+            ['category' => 'Tutup_Badan', 'item_name' => 'Kemeja (PDH/PDL)', 'sizes_config' => ['L' => ['14', '14.5', '15', '15.5', '16', '16.5', '17', '18'], 'P' => ['K', 'SD', 'B', 'EB']]],
+            ['category' => 'Tutup_Badan', 'item_name' => 'Celana/Rok', 'sizes_config' => ['L' => range(28, 42), 'P' => ['K', 'SD', 'B', 'EB']]],
+            ['category' => 'Tutup_Badan', 'item_name' => 'Jaket', 'sizes_config' => ['U' => ['S', 'M', 'L', 'XL', 'XXL', 'XXXL']]],
+            ['category' => 'Tutup_Badan', 'item_name' => 'T-Shirt/Olahraga', 'sizes_config' => ['U' => ['S', 'M', 'L', 'XL', 'XXL', 'XXXL']]],
+
+            // --- TUTUP KAKI ---
+            ['category' => 'Tutup_Kaki', 'item_name' => 'Sepatu Dinas', 'sizes_config' => ['L' => range(38, 46), 'P' => range(36, 42)]],
+            ['category' => 'Tutup_Kaki', 'item_name' => 'Sepatu Olahraga', 'sizes_config' => ['U' => range(36, 46)]],
         ];
 
         foreach ($items as $itemData) {

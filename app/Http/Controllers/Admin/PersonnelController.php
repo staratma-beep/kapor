@@ -20,20 +20,19 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\PersonnelTemplateExport;
 use App\Imports\PersonnelImport;
 use Barryvdh\DomPDF\Facade\Pdf;
+use App\Exports\TutupKepalaExport;
 
 class PersonnelController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Personnel::with(['rank', 'satker', 'submissions.kaporItem', 'submissions.kaporSize'])->forCurrentSatker()->latest();
+        $query = Personnel::with(['rank', 'satker'])->forCurrentSatker()->latest();
 
         // Stats Calculation
-        $fiscalYear = Setting::getValue('fiscal_year', date('Y'));
         $totalReal = Personnel::forCurrentSatker()->count();
 
-        $submittedCount = Personnel::forCurrentSatker()->whereHas('submissions', function ($q) use ($fiscalYear) {
-            $q->where('fiscal_year', $fiscalYear);
-        })->count();
+        // Calculate submitted count based on kapor_sizes column availability
+        $submittedCount = Personnel::forCurrentSatker()->whereNotNull('kapor_sizes')->count();
 
         $stats = [
             'total_real' => $totalReal,
@@ -78,15 +77,9 @@ class PersonnelController extends Controller
         $satkers = Satker::orderBy('name')->get();
         $bagians = Personnel::whereNotNull('bagian')->distinct()->pluck('bagian');
 
-        // Fetch Kapor Items for Measurement Modal (Put Tutup Kepala ID 9 first)
-        $kaporItems = KaporItem::where('is_active', true)
-            ->orderByRaw('CASE WHEN id = 9 THEN 0 ELSE 1 END')
-            ->orderBy('id')
-            ->with(['sizes' => function ($q) {
-            $q->orderBy('sort_order');
-        }])->get();
+        // Note: kaporItems query removed as we now use decoupled JSON sizes in kapor_sizes column
 
-        return view('admin.personnel.index', compact('personnels', 'stats', 'ranks', 'satkers', 'bagians', 'perPage', 'kaporItems'));
+        return view('admin.personnel.index', compact('personnels', 'stats', 'ranks', 'satkers', 'bagians', 'perPage'));
     }
 
     public function store(Request $request)
@@ -104,6 +97,7 @@ class PersonnelController extends Controller
             'religion' => 'nullable|string|max:50',
             'golongan' => 'nullable|string|max:50',
             'keterangan' => 'nullable|string|max:255',
+            'kapor_sizes' => 'nullable|array',
         ]);
 
         DB::beginTransaction();
@@ -123,27 +117,6 @@ class PersonnelController extends Controller
             $personnelData['user_id'] = $user->id;
             $personnel = Personnel::create($personnelData);
 
-            // Save Measurements if provided
-            if ($request->has('measurements') && is_array($request->measurements)) {
-                $fiscalYear = Setting::getValue('fiscal_year', date('Y'));
-
-                foreach ($request->measurements as $itemId => $sizeId) {
-                    if (empty($sizeId))
-                        continue;
-
-                    KaporSubmission::updateOrCreate(
-                    [
-                        'personnel_id' => $personnel->id,
-                        'kapor_item_id' => intval($itemId),
-                        'fiscal_year' => $fiscalYear,
-                    ],
-                    [
-                        'kapor_size_id' => intval($sizeId),
-                    ]
-                    );
-                }
-            }
-
             DB::commit();
 
             return redirect()->route('admin.personnel.index')->with('success', 'Data personil dan ukuran berhasil ditambahkan.');
@@ -157,49 +130,15 @@ class PersonnelController extends Controller
 
     public function storeMeasurements(Request $request, Personnel $personnel)
     {
-        $request->validate([
-            'measurements' => 'required|array',
+        $validated = $request->validate([
+            'kapor_sizes' => 'required|array',
         ]);
 
-        // Filter out empty values
-        $measurements = array_filter($request->measurements, function ($v) {
-            return !empty($v);
-        });
-
-        if (empty($measurements)) {
-            return redirect()->back()->with('error', 'Silakan pilih minimal satu ukuran.');
-        }
-
-        DB::beginTransaction();
         try {
-            $fiscalYear = Setting::getValue('fiscal_year', date('Y'));
-
-            foreach ($measurements as $itemId => $sizeId) {
-                // Ensure itemId represents a valid KaporItem to prevent FK error
-                if (!KaporItem::where('id', $itemId)->exists())
-                    continue;
-
-                KaporSubmission::updateOrCreate(
-                [
-                    'personnel_id' => $personnel->id,
-                    'kapor_item_id' => $itemId,
-                    'fiscal_year' => $fiscalYear,
-                ],
-                [
-                    'kapor_size_id' => $sizeId,
-                ]
-                );
-            }
-
-            DB::commit();
-
-            // Clear session to prevent modal from reopening
-            session()->forget('open_measurement_modal');
-
-            return redirect()->route('admin.personnel.index')->with('success', 'Data ukuran berhasil disimpan.');
+            $personnel->update(['kapor_sizes' => $validated['kapor_sizes']]);
+            return redirect()->back()->with('success', 'Data ukuran berhasil disimpan.');
         }
         catch (\Exception $e) {
-            DB::rollBack();
             return redirect()->back()->with('error', 'Gagal menyimpan ukuran: ' . $e->getMessage());
         }
     }
@@ -220,6 +159,7 @@ class PersonnelController extends Controller
             'golongan' => 'nullable|string|max:50',
             'keterangan' => 'nullable|string|max:255',
             'is_active' => 'nullable|boolean',
+            'kapor_sizes' => 'nullable|array',
         ]);
 
         DB::beginTransaction();
@@ -235,27 +175,6 @@ class PersonnelController extends Controller
                     'satker_id' => $validated['satker_id'],
                     'is_active' => $request->has('is_active') ? $request->is_active : $personnel->is_active,
                 ]);
-            }
-
-            // Update Measurements
-            if ($request->has('measurements') && is_array($request->measurements)) {
-                $fiscalYear = Setting::getValue('fiscal_year', date('Y'));
-
-                foreach ($request->measurements as $itemId => $sizeId) {
-                    if (empty($sizeId))
-                        continue;
-
-                    KaporSubmission::updateOrCreate(
-                    [
-                        'personnel_id' => $personnel->id,
-                        'kapor_item_id' => intval($itemId),
-                        'fiscal_year' => $fiscalYear,
-                    ],
-                    [
-                        'kapor_size_id' => intval($sizeId),
-                    ]
-                    );
-                }
             }
 
             DB::commit();
@@ -325,6 +244,28 @@ class PersonnelController extends Controller
             return redirect()->back()->with('error', 'Gagal memproses file: ' . $e->getMessage());
         }
     }
+
+    /**
+     * Export Kapor Recap (Generic and Optimized)
+     */
+    public function exportRekap(Request $request)
+    {
+        $request->validate([
+            'category' => 'required|string',
+            'item' => 'nullable|string',
+        ]);
+
+        $category = $request->query('category');
+        $item = $request->query('item');
+
+        $fileName = 'Rekap_' . $category . '_' . ($item ? $item . '_' : '') . 'Polda_NTB_' . date('Y') . '.xlsx';
+
+        return Excel::download(new \App\Exports\KaporRekapExport($category, $item), $fileName);
+    }
+
+    /**
+     * Print Satker PDF Report.
+     */
 
     /**
      * Print Satker PDF Report.

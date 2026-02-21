@@ -495,6 +495,9 @@
                 <a href="<?php echo e(route('admin.personnel.index')); ?>" class="nav-link <?php echo e(request()->routeIs('admin.personnel.*') ? 'active' : ''); ?>">
                     <i class="ri-team-line"></i> Data Personel
                 </a>
+                <a href="<?php echo e(route('admin.kapor-items.index')); ?>" class="nav-link <?php echo e(request()->routeIs('admin.kapor-items.*') ? 'active' : ''); ?>">
+                    <i class="ri-t-shirt-2-line"></i> Data Item Kapor
+                </a>
                 <a href="<?php echo e(route('admin.reports')); ?>" class="nav-link <?php echo e(request()->routeIs('admin.reports*') ? 'active' : ''); ?>">
                     <i class="ri-bar-chart-grouped-line"></i> Laporan
                 </a>

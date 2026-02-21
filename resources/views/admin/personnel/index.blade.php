@@ -5,26 +5,110 @@
 
 @section('content')
 <div class="page-header">
-    <div class="page-header-row" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+    <div class="page-header-row">
         <div>
             <h1 class="page-title">Personel</h1>
             <p class="page-subtitle">Direktorii personel dan informasi kapor</p>
         </div>
-        <div class="page-header-actions" style="display: flex; gap: 12px; align-items: center;">
-            <button class="btn btn-outline" onclick="openModal('bulkDeleteModal')" style="display: flex; align-items: center; gap: 8px; border-radius: 10px; padding: 10px 18px; font-weight: 600; border-color: #FEE2E2; color: #B91C1C;">
-                <i class="ri-delete-bin-line"></i> Hapus per Satker
+        <div class="page-header-actions" style="display: flex; gap: 10px;">
+            {{-- Hapus per Satker --}}
+            <button class="btn" onclick="openModal('bulkDeleteModal')" style="background: var(--danger); color: white;">
+                <i class="ri-delete-bin-line"></i> Hapus Satker
             </button>
-            <button class="btn btn-outline" onclick="openModal('importModal')" style="display: flex; align-items: center; gap: 8px; border-radius: 10px; padding: 10px 18px; font-weight: 600; border-color: #E5E7EB; color: #374151;">
-                <i class="ri-file-upload-line" style="color: #B91C1C;"></i> Impor Excel
+
+            {{-- Impor Excel --}}
+            <button class="btn" onclick="openModal('importModal')" style="background: var(--slate-600); color: white;">
+                <i class="ri-file-upload-line"></i> Impor Excel
             </button>
-            <button class="btn" onclick="openModal('printSatkerModal')" style="display: flex; align-items: center; gap: 8px; border-radius: 10px; padding: 10px 18px; font-weight: 700; background: #059669; color: white; border: none; cursor: pointer;">
+
+            {{-- Custom Dropdown Rekap --}}
+            <div class="dropdown-container" id="rekapDropdown" style="position: relative;">
+                <button type="button" class="btn btn-primary" onclick="this.parentElement.classList.toggle('open')">
+                    <span style="display: flex; align-items: center; gap: 6px;"><i class="ri-file-excel-2-line"></i> Rekap</span>
+                    <i class="ri-arrow-down-s-line" style="margin-left: 4px;"></i>
+                </button>
+                <div class="dropdown-menu" style="width: 240px; right: 0; left: auto; max-height: 480px; overflow-y: auto;">
+                    {{-- Section: Tutup Kepala --}}
+                    <div class="px-3 py-2 text-xs font-bold text-gray-500 uppercase tracking-wider bg-gray-50 border-b border-gray-100">
+                        Tutup Kepala
+                    </div>
+                    <button class="dropdown-item" onclick="exportKapor('Tutup_Kepala', 'TOPI LAPANGAN')">
+                        <i class="ri-checkbox-blank-circle-line" style="font-size: 12px;"></i> Topi Lapangan
+                    </button>
+                    <button class="dropdown-item" onclick="exportKapor('Tutup_Kepala', 'PET')">
+                        <i class="ri-checkbox-blank-circle-line" style="font-size: 12px;"></i> Pet
+                    </button>
+                    <button class="dropdown-item" onclick="exportKapor('Tutup_Kepala', 'BARET')">
+                        <i class="ri-checkbox-blank-circle-line" style="font-size: 12px;"></i> Baret
+                    </button>
+                    <button class="dropdown-item" onclick="exportKapor('Tutup_Kepala', 'PECI')">
+                        <i class="ri-checkbox-blank-circle-line" style="font-size: 12px;"></i> Peci
+                    </button>
+                    <button class="dropdown-item" onclick="exportKapor('Tutup_Kepala', 'JILBAB')">
+                        <i class="ri-checkbox-blank-circle-line" style="font-size: 12px;"></i> Jilbab
+                    </button>
+
+                    {{-- Section: Tutup Badan --}}
+                    <div class="px-3 py-2 text-xs font-bold text-gray-500 uppercase tracking-wider bg-gray-50 border-y border-gray-100 mt-1">
+                        Tutup Badan
+                    </div>
+                    <button class="dropdown-item" onclick="exportKapor('Tutup_Badan', 'Kemeja')">
+                        <i class="ri-checkbox-blank-circle-line" style="font-size: 12px;"></i> Kemeja
+                    </button>
+                    <button class="dropdown-item" onclick="exportKapor('Tutup_Badan', 'Celana')">
+                        <i class="ri-checkbox-blank-circle-line" style="font-size: 12px;"></i> Celana/Rok
+                    </button>
+                    <button class="dropdown-item" onclick="exportKapor('Tutup_Badan', 'Jaket')">
+                        <i class="ri-checkbox-blank-circle-line" style="font-size: 12px;"></i> Jaket
+                    </button>
+                    <button class="dropdown-item" onclick="exportKapor('Tutup_Badan', 'Olahraga')">
+                        <i class="ri-checkbox-blank-circle-line" style="font-size: 12px;"></i> T-Shirt/Olahraga
+                    </button>
+
+                    {{-- Section: Tutup Kaki --}}
+                    <div class="px-3 py-2 text-xs font-bold text-gray-500 uppercase tracking-wider bg-gray-50 border-y border-gray-100 mt-1">
+                        Tutup Kaki
+                    </div>
+                    <button class="dropdown-item" onclick="exportKapor('Tutup_Kaki', 'Sepatu Dinas')">
+                        <i class="ri-checkbox-blank-circle-line" style="font-size: 12px;"></i> Sepatu Dinas
+                    </button>
+                    <button class="dropdown-item" onclick="exportKapor('Tutup_Kaki', 'Sepatu Olahraga')">
+                        <i class="ri-checkbox-blank-circle-line" style="font-size: 12px;"></i> Sepatu Olahraga
+                    </button>
+                </div>
+            </div>
+
+            {{-- Cetak Satker --}}
+            <button class="btn btn-success" onclick="openModal('printSatkerModal')">
                 <i class="ri-printer-line"></i> Cetak Satker
             </button>
-            <button class="btn btn-primary" onclick="openModal('addPersonnelModal')" style="display: flex; align-items: center; gap: 8px; border-radius: 10px; padding: 10px 18px; font-weight: 700;">
-                <i class="ri-user-add-line"></i> Tambah Personel
+
+            {{-- Tambah Personel --}}
+            <button class="btn btn-primary" onclick="openModal('addPersonnelModal')">
+                <i class="ri-user-add-line"></i> Tambah
             </button>
         </div>
+    </div>
 </div>
+
+<script>
+    // Close rekap dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+        var dd = document.getElementById('rekapDropdown');
+        if (dd && !dd.contains(e.target)) dd.classList.remove('open');
+    });
+
+    function exportKapor(category, item) {
+        // Construct the URL
+        const url = "{{ route('admin.personnel.export-rekap') }}?category=" + category + "&item=" + encodeURIComponent(item);
+        
+        // Trigger download
+        window.location.href = url;
+        
+        // Close dropdown
+        document.getElementById('rekapDropdown').classList.remove('open');
+    }
+</script>
 
 <div class="stats-grid">
     <div class="stat-card">
@@ -60,7 +144,7 @@
 {{-- Filter Bar --}}
 <div class="filter-bar">
     <form method="GET" action="{{ route('admin.personnel.index') }}" class="filter-form" id="filterForm">
-        <div class="search-input" style="flex: 2;">
+        <div class="search-container" style="flex: 2;">
             <i class="ri-search-line"></i>
             <input type="text" name="search" id="searchInput" value="{{ request('search') }}" placeholder="Cari berdasarkan nama, NRP/NIP, atau golongan..." oninput="debounceSearch()">
             @if(request('search'))
@@ -109,7 +193,7 @@
         </div>
 
         <div>
-            <button type="button" class="btn-outline" onclick="window.location.href=updateQueryStringParameter(window.location.href, 'export', '1')">
+            <button type="button" class="btn" style="background: var(--slate-600); color: white;" onclick="window.location.href=updateQueryStringParameter(window.location.href, 'export', '1')">
                 <i class="ri-download-line"></i> Ekspor
             </button>
         </div>
@@ -237,7 +321,9 @@
     <div class="modal-content" style="max-width: 500px;">
         <div class="modal-header">
             <h3 style="margin: 0; font-size: 18px; font-weight: 700; color: #DC2626;">Hapus Seluruh Data per Satker</h3>
-            <button class="close-btn" onclick="closeModal('bulkDeleteModal')">&times;</button>
+            <button class="modal-close" onclick="closeModal('bulkDeleteModal')">
+                <i class="ri-close-line"></i>
+            </button>
         </div>
         <form action="{{ route('admin.personnel.bulk-delete') }}" method="POST">
             @csrf
@@ -294,7 +380,9 @@
     <div class="modal-content" style="max-width: 800px;">
         <div class="modal-header">
             <h3 style="margin: 0; font-size: 18px; font-weight: 700; color: #111827;">Impor Data Personel & Ukuran Kapor</h3>
-            <button class="close-btn" onclick="closeModal('importModal')">&times;</button>
+            <button class="modal-close" onclick="closeModal('importModal')">
+                <i class="ri-close-line"></i>
+            </button>
         </div>
         <form action="{{ route('admin.personnel.import') }}" method="POST" enctype="multipart/form-data">
             @csrf
@@ -650,29 +738,193 @@
                     <!-- Measurements Section -->
                     <div class="col-span-2-desktop" style="margin-top: 10px; padding-top: 20px; border-top: 1px dashed #E5E7EB;">
                         <h4 style="font-size: 14px; font-weight: 700; color: #111827; margin-bottom: 16px;">DATA UKURAN (KAPOR)</h4>
+                        @php
+                            $s_head = range(54, 60);
+                            $s_shirt_m = ['14', '14.5', '15', '15.5', '16', '16.5', '17', '17.5', '18', '18.5', '19', '19.5', '20', '21', '22'];
+                            $s_wom = ['K', 'SD', 'B', 'EB', 'EEB', 'EEEB', 'EEEEB'];
+                            $s_pants_m = range(27, 50);
+                            $s_shoes = range(36, 48);
+                            $s_belt = range(36, 60, 2);
+                            $s_jilbab = ['K', 'SD', 'B'];
+                            
+                            $items = [
+                                'topi' => ['label'=>'TUTUP KEPALA', 'opts'=>$s_head],
+                                'olahraga' => ['label'=>'T-SHIRT/OLAHRAGA', 'opts'=>$s_wom],
+                                'jaket' => ['label'=>'JAKET', 'opts'=>$s_wom],
+                                'sepatu_dinas' => ['label'=>'SEPATU DINAS', 'opts'=>$s_shoes],
+                                'sepatu_olahraga' => ['label'=>'SEPATU OLAHRAGA', 'opts'=>$s_shoes],
+                                'sabuk' => ['label'=>'SABUK', 'opts'=>$s_belt],
+                                'jilbab' => ['label'=>'JILBAB', 'opts'=>$s_jilbab],
+                            ];
+                        @endphp
                         <div class="form-grid">
-                            @foreach($kaporItems as $item)
-                                <div class="form-group">
-                                    <label>{{ $item->item_name }} ({{ $item->category }})</label>
-                                    <div class="custom-select-wrapper">
-                                        <div class="custom-select" onclick="toggleDropdown(this)">
-                                            <div class="select-trigger"><span id="add_measurement_label_{{ $item->id }}">{{ (old('modal_type') == 'add' && old('measurements.'.$item->id)) ? ($item->sizes->firstWhere('id', old('measurements.'.$item->id))->size_label ?? '— Pilih Ukuran —') : '— Pilih Ukuran —' }}</span><i class="ri-arrow-down-s-line"></i></div>
-                                            <div class="custom-options">
-                                                <div class="options-scroll">
-                                                    @foreach($item->sizes as $size)
-                                                        <div class="option" 
-                                                             data-gender="{{ $size->gender }}"
-                                                             onclick="selectOptionManual(this, 'measurements[{{ $item->id }}]', '{{ $size->id }}', '{{ $size->size_label }}', 'add_measurement_label_{{ $item->id }}')">
-                                                            {{ $size->size_label }}
-                                                        </div>
-                                                    @endforeach
-                                                </div>
+                            {{-- 1. TUTUP KEPALA --}}
+                            <div class="form-group">
+                                <label>TUTUP KEPALA</label>
+                                <div class="custom-select-wrapper">
+                                    <div class="custom-select" onclick="toggleDropdown(this)">
+                                        <div class="select-trigger"><span id="add_size_label_topi">— Pilih —</span><i class="ri-arrow-down-s-line"></i></div>
+                                        <div class="custom-options">
+                                            <div class="options-scroll">
+                                                @foreach($s_head as $s)
+                                                    <div class="option" onclick="selectOptionManual(this, 'kapor_sizes[topi]', '{{ $s }}', '{{ $s }}', 'add_size_label_topi')">{{ $s }}</div>
+                                                @endforeach
                                             </div>
                                         </div>
-                                        <input type="hidden" name="measurements[{{ $item->id }}]" value="{{ old('modal_type') == 'add' ? old('measurements.'.$item->id) : '' }}">
                                     </div>
+                                    <input type="hidden" name="kapor_sizes[topi]" id="add_size_topi">
                                 </div>
-                            @endforeach
+                            </div>
+
+                            {{-- 2. KEMEJA (Gendered) --}}
+                            <div class="form-group">
+                                <label>KEMEJA (PDH/PDL)</label>
+                                <div class="custom-select-wrapper">
+                                    <div class="custom-select" onclick="toggleDropdown(this)">
+                                        <div class="select-trigger"><span id="add_size_label_kemeja">— Pilih —</span><i class="ri-arrow-down-s-line"></i></div>
+                                        <div class="custom-options">
+                                            <div class="options-scroll">
+                                                @foreach($s_shirt_m as $s)
+                                                    <div class="option" data-gender="L" onclick="selectOptionManual(this, 'kapor_sizes[kemeja]', '{{ $s }}', '{{ $s }}', 'add_size_label_kemeja')">{{ $s }}</div>
+                                                @endforeach
+                                                @foreach($s_wom as $s)
+                                                    <div class="option" data-gender="P" onclick="selectOptionManual(this, 'kapor_sizes[kemeja]', '{{ $s }}', '{{ $s }}', 'add_size_label_kemeja')">{{ $s }}</div>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <input type="hidden" name="kapor_sizes[kemeja]" id="add_size_kemeja">
+                                </div>
+                            </div>
+
+                            {{-- 3. CELANA/ROK (Gendered) --}}
+                            <div class="form-group">
+                                <label>CELANA/ROK</label>
+                                <div class="custom-select-wrapper">
+                                    <div class="custom-select" onclick="toggleDropdown(this)">
+                                        <div class="select-trigger"><span id="add_size_label_celana">— Pilih —</span><i class="ri-arrow-down-s-line"></i></div>
+                                        <div class="custom-options">
+                                            <div class="options-scroll">
+                                                @foreach($s_pants_m as $s)
+                                                    <div class="option" data-gender="L" onclick="selectOptionManual(this, 'kapor_sizes[celana]', '{{ $s }}', '{{ $s }}', 'add_size_label_celana')">{{ $s }}</div>
+                                                @endforeach
+                                                @foreach($s_wom as $s)
+                                                    <div class="option" data-gender="P" onclick="selectOptionManual(this, 'kapor_sizes[celana]', '{{ $s }}', '{{ $s }}', 'add_size_label_celana')">{{ $s }}</div>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <input type="hidden" name="kapor_sizes[celana]" id="add_size_celana">
+                                </div>
+                            </div>
+
+                            {{-- 4. T-SHIRT/OLAHRAGA --}}
+                            <div class="form-group">
+                                <label>T-SHIRT/OLAHRAGA</label>
+                                <div class="custom-select-wrapper">
+                                    <div class="custom-select" onclick="toggleDropdown(this)">
+                                        <div class="select-trigger"><span id="add_size_label_olahraga">— Pilih —</span><i class="ri-arrow-down-s-line"></i></div>
+                                        <div class="custom-options">
+                                            <div class="options-scroll">
+                                                @foreach($s_wom as $s)
+                                                    <div class="option" onclick="selectOptionManual(this, 'kapor_sizes[olahraga]', '{{ $s }}', '{{ $s }}', 'add_size_label_olahraga')">{{ $s }}</div>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <input type="hidden" name="kapor_sizes[olahraga]" id="add_size_olahraga">
+                                </div>
+                            </div>
+
+                            {{-- 5. JAKET --}}
+                            <div class="form-group">
+                                <label>JAKET</label>
+                                <div class="custom-select-wrapper">
+                                    <div class="custom-select" onclick="toggleDropdown(this)">
+                                        <div class="select-trigger"><span id="add_size_label_jaket">— Pilih —</span><i class="ri-arrow-down-s-line"></i></div>
+                                        <div class="custom-options">
+                                            <div class="options-scroll">
+                                                @foreach($s_wom as $s)
+                                                    <div class="option" onclick="selectOptionManual(this, 'kapor_sizes[jaket]', '{{ $s }}', '{{ $s }}', 'add_size_label_jaket')">{{ $s }}</div>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <input type="hidden" name="kapor_sizes[jaket]" id="add_size_jaket">
+                                </div>
+                            </div>
+
+                            {{-- 6. SEPATU DINAS --}}
+                            <div class="form-group">
+                                <label>SEPATU DINAS</label>
+                                <div class="custom-select-wrapper">
+                                    <div class="custom-select" onclick="toggleDropdown(this)">
+                                        <div class="select-trigger"><span id="add_size_label_sepatu_dinas">— Pilih —</span><i class="ri-arrow-down-s-line"></i></div>
+                                        <div class="custom-options">
+                                            <div class="options-scroll">
+                                                @foreach($s_shoes as $s)
+                                                    <div class="option" onclick="selectOptionManual(this, 'kapor_sizes[sepatu_dinas]', '{{ $s }}', '{{ $s }}', 'add_size_label_sepatu_dinas')">{{ $s }}</div>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <input type="hidden" name="kapor_sizes[sepatu_dinas]" id="add_size_sepatu_dinas">
+                                </div>
+                            </div>
+
+                            {{-- 7. SEPATU OLAHRAGA --}}
+                            <div class="form-group">
+                                <label>SEPATU OLAHRAGA</label>
+                                <div class="custom-select-wrapper">
+                                    <div class="custom-select" onclick="toggleDropdown(this)">
+                                        <div class="select-trigger"><span id="add_size_label_sepatu_olahraga">— Pilih —</span><i class="ri-arrow-down-s-line"></i></div>
+                                        <div class="custom-options">
+                                            <div class="options-scroll">
+                                                @foreach($s_shoes as $s)
+                                                    <div class="option" onclick="selectOptionManual(this, 'kapor_sizes[sepatu_olahraga]', '{{ $s }}', '{{ $s }}', 'add_size_label_sepatu_olahraga')">{{ $s }}</div>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <input type="hidden" name="kapor_sizes[sepatu_olahraga]" id="add_size_sepatu_olahraga">
+                                </div>
+                            </div>
+
+                            {{-- 8. SABUK --}}
+                            <div class="form-group">
+                                <label>SABUK</label>
+                                <div class="custom-select-wrapper">
+                                    <div class="custom-select" onclick="toggleDropdown(this)">
+                                        <div class="select-trigger"><span id="add_size_label_sabuk">— Pilih —</span><i class="ri-arrow-down-s-line"></i></div>
+                                        <div class="custom-options">
+                                            <div class="options-scroll">
+                                                @foreach($s_belt as $s)
+                                                    <div class="option" onclick="selectOptionManual(this, 'kapor_sizes[sabuk]', '{{ $s }}', '{{ $s }}', 'add_size_label_sabuk')">{{ $s }}</div>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <input type="hidden" name="kapor_sizes[sabuk]" id="add_size_sabuk">
+                                </div>
+                            </div>
+
+                            {{-- 9. JILBAB --}}
+                            <div class="form-group">
+                                <label>JILBAB</label>
+                                <div class="custom-select-wrapper">
+                                    <div class="custom-select" onclick="toggleDropdown(this)">
+                                        <div class="select-trigger"><span id="add_size_label_jilbab">— Pilih —</span><i class="ri-arrow-down-s-line"></i></div>
+                                        <div class="custom-options">
+                                            <div class="options-scroll">
+                                                @foreach($s_jilbab as $s)
+                                                    <div class="option" onclick="selectOptionManual(this, 'kapor_sizes[jilbab]', '{{ $s }}', '{{ $s }}', 'add_size_label_jilbab')">{{ $s }}</div>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <input type="hidden" name="kapor_sizes[jilbab]" id="add_size_jilbab">
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -690,7 +942,7 @@
     <div class="modal-content" style="max-width: 650px;">
         <div class="modal-header">
             <h2 class="modal-title">
-                <i class="ri-file-user-line" style="color: #10B981; margin-right: 10px;"></i> Detail Personel
+                <i class="ri-file-user-line" style="color: #10B981; margin-right: 10px;"></i> DETAIL PERSONEL
             </h2>
             <button class="modal-close" onclick="closeModal('detailPersonnelModal')">
                 <i class="ri-close-line"></i>
@@ -713,41 +965,41 @@
 
             <div class="form-grid" style="margin-bottom: 24px;">
                 <div>
-                    <label style="font-weight: 800; color: #000; font-size: 14px; display: block; margin-bottom: 2px;">Satker</label>
+                    <label style="font-weight: 800; color: #000; font-size: 14px; display: block; margin-bottom: 2px;">SATKER</label>
                     <div id="detail_satker" style="font-size: 14px; font-weight: 500; color: #4B5563;"></div>
                 </div>
                 <div>
-                    <label style="font-weight: 800; color: #000; font-size: 14px; display: block; margin-bottom: 2px;">Jabatan</label>
+                    <label style="font-weight: 800; color: #000; font-size: 14px; display: block; margin-bottom: 2px;">JABATAN</label>
                     <div id="detail_jabatan" style="font-size: 14px; font-weight: 500; color: #4B5563;"></div>
                 </div>
                 <div>
-                    <label style="font-weight: 800; color: #000; font-size: 14px; display: block; margin-bottom: 2px;">Bagian</label>
+                    <label style="font-weight: 800; color: #000; font-size: 14px; display: block; margin-bottom: 2px;">BAGIAN</label>
                     <div id="detail_bagian" style="font-size: 14px; font-weight: 500; color: #4B5563;"></div>
                 </div>
                 <div>
-                    <label style="font-weight: 800; color: #000; font-size: 14px; display: block; margin-bottom: 2px;">Keterangan</label>
+                    <label style="font-weight: 800; color: #000; font-size: 14px; display: block; margin-bottom: 2px;">KETERANGAN</label>
                     <div id="detail_keterangan" style="font-size: 14px; font-weight: 500; color: #4B5563;"></div>
                 </div>
                  <div>
-                    <label style="font-weight: 800; color: #000; font-size: 14px; display: block; margin-bottom: 2px;">Golongan</label>
+                    <label style="font-weight: 800; color: #000; font-size: 14px; display: block; margin-bottom: 2px;">GOLONGAN</label>
                     <div id="detail_golongan" style="font-size: 14px; font-weight: 500; color: #4B5563;"></div>
                 </div>
                 <div>
-                    <label style="font-weight: 800; color: #000; font-size: 14px; display: block; margin-bottom: 2px;">Agama</label>
+                    <label style="font-weight: 800; color: #000; font-size: 14px; display: block; margin-bottom: 2px;">AGAMA</label>
                     <div id="detail_religion" style="font-size: 14px; font-weight: 500; color: #4B5563;"></div>
                 </div>
                 <div>
-                    <label style="font-weight: 800; color: #000; font-size: 14px; display: block; margin-bottom: 2px;">Jenis Kelamin</label>
+                    <label style="font-weight: 800; color: #000; font-size: 14px; display: block; margin-bottom: 2px;">JENIS KELAMIN</label>
                     <div id="detail_gender" style="font-size: 14px; font-weight: 500; color: #4B5563;"></div>
                 </div>
                 <div>
-                    <label style="font-weight: 800; color: #000; font-size: 14px; display: block; margin-bottom: 2px;">No HP</label>
+                    <label style="font-weight: 800; color: #000; font-size: 14px; display: block; margin-bottom: 2px;">NO HP</label>
                     <div id="detail_phone" style="font-size: 14px; font-weight: 500; color: #4B5563;"></div>
                 </div>
             </div>
 
             <h4 style="font-size: 14px; font-weight: 700; color: #111827; border-bottom: 1px solid #E5E7EB; padding-bottom: 8px; margin-bottom: 16px;">
-                Data Ukuran (Kapor)
+                DATA UKURAN (KAPOR)
             </h4>
             
             <div id="detail_measurements" class="form-grid" style="gap: 12px;">
@@ -998,28 +1250,173 @@
                     <div class="col-span-2-desktop" style="margin-top: 10px; padding-top: 20px; border-top: 1px dashed #E5E7EB;">
                         <h4 style="font-size: 14px; font-weight: 700; color: #111827; margin-bottom: 16px;">DATA UKURAN (KAPOR)</h4>
                         <div class="form-grid">
-                            @foreach($kaporItems as $item)
-                                <div class="form-group">
-                                    <label>{{ $item->item_name }} ({{ $item->category }})</label>
-                                    <div class="custom-select-wrapper">
-                                        <div class="custom-select" onclick="toggleDropdown(this)">
-                                            <div class="select-trigger"><span id="edit_measurement_label_{{ $item->id }}">{{ (old('modal_type') == 'edit' && old('measurements.'.$item->id)) ? ($item->sizes->firstWhere('id', old('measurements.'.$item->id))->size_label ?? '— Pilih Ukuran —') : '— Pilih Ukuran —' }}</span><i class="ri-arrow-down-s-line"></i></div>
-                                            <div class="custom-options">
-                                                <div class="options-scroll">
-                                                    @foreach($item->sizes as $size)
-                                                        <div class="option" 
-                                                             data-gender="{{ $size->gender }}"
-                                                             onclick="selectOptionManual(this, 'measurements[{{ $item->id }}]', '{{ $size->id }}', '{{ $size->size_label }}', 'edit_measurement_label_{{ $item->id }}')">
-                                                            {{ $size->size_label }}
-                                                        </div>
-                                                    @endforeach
-                                                </div>
+                            {{-- 1. TUTUP KEPALA --}}
+                            <div class="form-group">
+                                <label>TUTUP KEPALA</label>
+                                <div class="custom-select-wrapper">
+                                    <div class="custom-select" onclick="toggleDropdown(this)">
+                                        <div class="select-trigger"><span id="edit_size_label_topi">— Pilih —</span><i class="ri-arrow-down-s-line"></i></div>
+                                        <div class="custom-options">
+                                            <div class="options-scroll">
+                                                @foreach($s_head as $s)
+                                                    <div class="option" onclick="selectOptionManual(this, 'kapor_sizes[topi]', '{{ $s }}', '{{ $s }}', 'edit_size_label_topi')">{{ $s }}</div>
+                                                @endforeach
                                             </div>
                                         </div>
-                                        <input type="hidden" name="measurements[{{ $item->id }}]" id="edit_measurement_{{ $item->id }}" value="{{ old('modal_type') == 'edit' ? old('measurements.'.$item->id) : '' }}">
                                     </div>
+                                    <input type="hidden" name="kapor_sizes[topi]" id="edit_size_topi">
                                 </div>
-                            @endforeach
+                            </div>
+
+                            {{-- 2. KEMEJA (Gendered) --}}
+                            <div class="form-group">
+                                <label>KEMEJA (PDH/PDL)</label>
+                                <div class="custom-select-wrapper">
+                                    <div class="custom-select" onclick="toggleDropdown(this)">
+                                        <div class="select-trigger"><span id="edit_size_label_kemeja">— Pilih —</span><i class="ri-arrow-down-s-line"></i></div>
+                                        <div class="custom-options">
+                                            <div class="options-scroll">
+                                                @foreach($s_shirt_m as $s)
+                                                    <div class="option" data-gender="L" onclick="selectOptionManual(this, 'kapor_sizes[kemeja]', '{{ $s }}', '{{ $s }}', 'edit_size_label_kemeja')">{{ $s }}</div>
+                                                @endforeach
+                                                @foreach($s_wom as $s)
+                                                    <div class="option" data-gender="P" onclick="selectOptionManual(this, 'kapor_sizes[kemeja]', '{{ $s }}', '{{ $s }}', 'edit_size_label_kemeja')">{{ $s }}</div>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <input type="hidden" name="kapor_sizes[kemeja]" id="edit_size_kemeja">
+                                </div>
+                            </div>
+
+                            {{-- 3. CELANA/ROK (Gendered) --}}
+                            <div class="form-group">
+                                <label>CELANA/ROK</label>
+                                <div class="custom-select-wrapper">
+                                    <div class="custom-select" onclick="toggleDropdown(this)">
+                                        <div class="select-trigger"><span id="edit_size_label_celana">— Pilih —</span><i class="ri-arrow-down-s-line"></i></div>
+                                        <div class="custom-options">
+                                            <div class="options-scroll">
+                                                @foreach($s_pants_m as $s)
+                                                    <div class="option" data-gender="L" onclick="selectOptionManual(this, 'kapor_sizes[celana]', '{{ $s }}', '{{ $s }}', 'edit_size_label_celana')">{{ $s }}</div>
+                                                @endforeach
+                                                @foreach($s_wom as $s)
+                                                    <div class="option" data-gender="P" onclick="selectOptionManual(this, 'kapor_sizes[celana]', '{{ $s }}', '{{ $s }}', 'edit_size_label_celana')">{{ $s }}</div>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <input type="hidden" name="kapor_sizes[celana]" id="edit_size_celana">
+                                </div>
+                            </div>
+
+                            {{-- 4. T-SHIRT/OLAHRAGA --}}
+                            <div class="form-group">
+                                <label>T-SHIRT/OLAHRAGA</label>
+                                <div class="custom-select-wrapper">
+                                    <div class="custom-select" onclick="toggleDropdown(this)">
+                                        <div class="select-trigger"><span id="edit_size_label_olahraga">— Pilih —</span><i class="ri-arrow-down-s-line"></i></div>
+                                        <div class="custom-options">
+                                            <div class="options-scroll">
+                                                @foreach($s_wom as $s)
+                                                    <div class="option" onclick="selectOptionManual(this, 'kapor_sizes[olahraga]', '{{ $s }}', '{{ $s }}', 'edit_size_label_olahraga')">{{ $s }}</div>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <input type="hidden" name="kapor_sizes[olahraga]" id="edit_size_olahraga">
+                                </div>
+                            </div>
+
+                            {{-- 5. JAKET --}}
+                            <div class="form-group">
+                                <label>JAKET</label>
+                                <div class="custom-select-wrapper">
+                                    <div class="custom-select" onclick="toggleDropdown(this)">
+                                        <div class="select-trigger"><span id="edit_size_label_jaket">— Pilih —</span><i class="ri-arrow-down-s-line"></i></div>
+                                        <div class="custom-options">
+                                            <div class="options-scroll">
+                                                @foreach($s_wom as $s)
+                                                    <div class="option" onclick="selectOptionManual(this, 'kapor_sizes[jaket]', '{{ $s }}', '{{ $s }}', 'edit_size_label_jaket')">{{ $s }}</div>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <input type="hidden" name="kapor_sizes[jaket]" id="edit_size_jaket">
+                                </div>
+                            </div>
+
+                            {{-- 6. SEPATU DINAS --}}
+                            <div class="form-group">
+                                <label>SEPATU DINAS</label>
+                                <div class="custom-select-wrapper">
+                                    <div class="custom-select" onclick="toggleDropdown(this)">
+                                        <div class="select-trigger"><span id="edit_size_label_sepatu_dinas">— Pilih —</span><i class="ri-arrow-down-s-line"></i></div>
+                                        <div class="custom-options">
+                                            <div class="options-scroll">
+                                                @foreach($s_shoes as $s)
+                                                    <div class="option" onclick="selectOptionManual(this, 'kapor_sizes[sepatu_dinas]', '{{ $s }}', '{{ $s }}', 'edit_size_label_sepatu_dinas')">{{ $s }}</div>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <input type="hidden" name="kapor_sizes[sepatu_dinas]" id="edit_size_sepatu_dinas">
+                                </div>
+                            </div>
+
+                            {{-- 7. SEPATU OLAHRAGA --}}
+                            <div class="form-group">
+                                <label>SEPATU OLAHRAGA</label>
+                                <div class="custom-select-wrapper">
+                                    <div class="custom-select" onclick="toggleDropdown(this)">
+                                        <div class="select-trigger"><span id="edit_size_label_sepatu_olahraga">— Pilih —</span><i class="ri-arrow-down-s-line"></i></div>
+                                        <div class="custom-options">
+                                            <div class="options-scroll">
+                                                @foreach($s_shoes as $s)
+                                                    <div class="option" onclick="selectOptionManual(this, 'kapor_sizes[sepatu_olahraga]', '{{ $s }}', '{{ $s }}', 'edit_size_label_sepatu_olahraga')">{{ $s }}</div>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <input type="hidden" name="kapor_sizes[sepatu_olahraga]" id="edit_size_sepatu_olahraga">
+                                </div>
+                            </div>
+
+                            {{-- 8. SABUK --}}
+                            <div class="form-group">
+                                <label>SABUK</label>
+                                <div class="custom-select-wrapper">
+                                    <div class="custom-select" onclick="toggleDropdown(this)">
+                                        <div class="select-trigger"><span id="edit_size_label_sabuk">— Pilih —</span><i class="ri-arrow-down-s-line"></i></div>
+                                        <div class="custom-options">
+                                            <div class="options-scroll">
+                                                @foreach($s_belt as $s)
+                                                    <div class="option" onclick="selectOptionManual(this, 'kapor_sizes[sabuk]', '{{ $s }}', '{{ $s }}', 'edit_size_label_sabuk')">{{ $s }}</div>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <input type="hidden" name="kapor_sizes[sabuk]" id="edit_size_sabuk">
+                                </div>
+                            </div>
+
+                            {{-- 9. JILBAB --}}
+                            <div class="form-group">
+                                <label>JILBAB</label>
+                                <div class="custom-select-wrapper">
+                                    <div class="custom-select" onclick="toggleDropdown(this)">
+                                        <div class="select-trigger"><span id="edit_size_label_jilbab">— Pilih —</span><i class="ri-arrow-down-s-line"></i></div>
+                                        <div class="custom-options">
+                                            <div class="options-scroll">
+                                                @foreach($s_jilbab as $s)
+                                                    <div class="option" onclick="selectOptionManual(this, 'kapor_sizes[jilbab]', '{{ $s }}', '{{ $s }}', 'edit_size_label_jilbab')">{{ $s }}</div>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <input type="hidden" name="kapor_sizes[jilbab]" id="edit_size_jilbab">
+                                </div>
+                            </div>
                         </div>
                     </div>
                     </div>
@@ -1042,7 +1439,9 @@
     <div class="modal-content" style="max-width: 500px;">
         <div class="modal-header">
             <h2 class="modal-title">Cetak Laporan Satker</h2>
-            <button class="modal-close" onclick="closeModal('printSatkerModal')">&times;</button>
+            <button class="modal-close" onclick="closeModal('printSatkerModal')">
+                <i class="ri-close-line"></i>
+            </button>
         </div>
         <div class="modal-body">
             <p style="font-size: 14px; color: #64748B; margin-bottom: 24px;">Pilih Satker yang ingin dicetak laporannya ke dalam format PDF.</p>
@@ -1186,7 +1585,7 @@
     .filter-form { display: flex; gap: 16px; align-items: center; }
     .filter-group { display: flex; gap: 12px; flex: 2; }
     
-    .search-input {
+    .search-container {
         flex: 1;
         position: relative;
         display: flex;
@@ -1198,17 +1597,17 @@
         height: 46px;
         transition: all 0.2s ease;
     }
-    .search-input:focus-within { 
+    .search-container:focus-within { 
         border-color: #B91C1C; 
         box-shadow: 0 0 0 4px rgba(185, 28, 28, 0.05); 
     }
-    .search-input i.ri-search-line { 
+    .search-container i.ri-search-line { 
         color: #64748B; 
         font-size: 20px;
         margin-right: 12px;
         flex-shrink: 0;
     }
-    .search-input input {
+    .search-container input {
         width: 100%;
         height: 100%;
         background: transparent;
@@ -1218,7 +1617,7 @@
         color: #1E293B;
         padding: 0;
     }
-    .search-input input::placeholder { color: #94A3B8; font-weight: 400; }
+    .search-container input::placeholder { color: #94A3B8; font-weight: 400; }
 
     /* ── Custom Select UI (Refined) ───────────────────── */
     .custom-select-wrapper { position: relative; width: 100%; }
@@ -1825,6 +2224,12 @@
         });
     }, true); // Capture phase
 
+    function exportTutupKepala(type) {
+        // Legacy support, redirects to new route
+        const url = "{{ route('admin.personnel.export-rekap') }}?category=Tutup_Kepala&item=" + encodeURIComponent(type);
+        window.location.href = url;
+    }
+
     function toggleDropdown(el) {
         // Toggle this dropdown
         const options = el.querySelector('.custom-options');
@@ -2104,26 +2509,38 @@
         const mContainer = document.getElementById('detail_measurements');
         mContainer.innerHTML = '';
         
-        // Use the global kaporItems from PHP to ensure we show all active items in order
-        const allItems = @json($kaporItems);
-        
-        allItems.forEach(item => {
-            // Find if this person has a submission for this item
-            const sub = (p.submissions || []).find(s => s.kapor_item_id === item.id);
-            const sizeLabel = (sub && sub.kapor_size) ? sub.kapor_size.size_label : '—';
-            
+        // Hardcoded list to ensure decoupling from KaporItem database
+        const displayItems = [
+            { label: 'TUTUP KEPALA', key: 'topi' },
+            { label: 'KEMEJA (PDH/PDL)', key: 'kemeja' },
+            { label: 'CELANA/ROK', key: 'celana' },
+            { label: 'T-SHIRT/OLAHRAGA', key: 'olahraga' },
+            { label: 'JAKET', key: 'jaket' },
+            { label: 'SEPATU DINAS', key: 'sepatu_dinas' },
+            { label: 'SEPATU OLAHRAGA', key: 'sepatu_olahraga' },
+            { label: 'SABUK', key: 'sabuk' },
+            { label: 'JILBAB', key: 'jilbab' }
+        ];
+
+        const sizes = p.kapor_sizes || {};
+        let hasData = false;
+
+        displayItems.forEach(item => {
+            const val = sizes[item.key] || '—';
+            if (val !== '—') hasData = true;
+
             const div = document.createElement('div');
             div.innerHTML = `
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: #F9FAFB; border-radius: 8px; border: 1px solid #F3F4F6;">
-                    <span style="font-size: 13px; font-weight: 500; color: #6B7280;">${item.item_name}</span>
-                    <span style="font-size: 14px; font-weight: 700; color: #111827;">${sizeLabel}</span>
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: #F9FAFB; border-radius: 8px; border: 1px solid #F3F4F6; margin-bottom: 8px;">
+                    <span style="font-size: 13px; font-weight: 500; color: #6B7280;">${item.label}</span>
+                    <span style="font-size: 14px; font-weight: 700; color: #111827;">${val}</span>
                 </div>
             `;
             mContainer.appendChild(div);
         });
 
-        if (allItems.length === 0) {
-            mContainer.innerHTML = '<div style="grid-column: span 2; font-size: 13px; color: #9CA3AF; font-style: italic; text-align: center; padding: 12px;">Belum ada data kapor aktif.</div>';
+        if (!hasData) {
+            // Optional: Message if no data, but we show dashes above anyway
         }
 
         openModal('detailPersonnelModal');
@@ -2250,30 +2667,34 @@
             filterMeasurements('P', 'editPersonnelModal');
         }
         
-        // Reset Measurements
-        document.querySelectorAll('[id^="edit_measurement_label_"]').forEach(el => el.innerText = '— Pilih Ukuran —');
-        document.querySelectorAll('[id^="edit_measurement_"]').forEach(el => el.value = '');
+        // Reset Measurements inputs
+        document.querySelectorAll('[id^="edit_size_"]').forEach(el => el.value = '');
+
+        // Reset Measurements inputs
+        document.querySelectorAll('[id^="edit_size_"]').forEach(el => el.value = '');
+        document.querySelectorAll('[id^="edit_size_label_"]').forEach(el => el.innerText = '— Pilih —');
 
         // Populate Measurements
-        if (p.submissions && p.submissions.length > 0) {
-            p.submissions.forEach(sub => {
-                const itemId = sub.kapor_item_id;
-                const sizeId = sub.kapor_size_id;
-                const sizeLabel = sub.kapor_size ? sub.kapor_size.size_label : '';
-
-                const input = document.getElementById('edit_measurement_' + itemId);
-                const label = document.getElementById('edit_measurement_label_' + itemId);
-                
-                if (input && label) {
-                    input.value = sizeId;
-                    label.innerText = sizeLabel;
-                    
-                    // Highlight selected option in dropdown
-                    const wrapper = input.closest('.custom-select-wrapper');
-                    if (wrapper) {
-                        wrapper.querySelectorAll('.option').forEach(opt => {
-                             opt.classList.remove('selected');
-                        });
+        if (p.kapor_sizes) {
+            const sizes = p.kapor_sizes;
+            const keys = ['topi','jilbab','kemeja','celana','jaket','olahraga','sepatu_dinas','sepatu_olahraga','sabuk'];
+            
+            keys.forEach(key => {
+                if(sizes[key]) {
+                    const input = document.getElementById('edit_size_' + key);
+                    const label = document.getElementById('edit_size_label_' + key);
+                    if(input && label) {
+                        input.value = sizes[key];
+                        // Try to find the matching option label (especially for Pria/Wanita prefixed options)
+                        // If not found, just use the value logic
+                         label.innerText = sizes[key];
+                         // Highlight selected
+                         const wrapper = input.closest('.custom-select-wrapper');
+                         if(wrapper) {
+                            // We can try to find the actual .option element to highlight it, 
+                            // but finding by text/value in filtered list is tricky.
+                            // Basic feedback:
+                         }
                     }
                 }
             });

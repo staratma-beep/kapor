@@ -39,25 +39,15 @@ class DashboardController extends Controller
         $defaultYear = Setting::getValue('fiscal_year', date('Y'));
         $fiscalYear = $request->get('year', $defaultYear);
 
-        // Get available years for filter
-        $availableYears = KaporSubmission::select('fiscal_year')
-            ->distinct()
-            ->orderBy('fiscal_year', 'desc')
-            ->pluck('fiscal_year')
-            ->toArray();
-
-        // Ensure current active year and selected year are in the list
-        if (!in_array($defaultYear, $availableYears))
-            $availableYears[] = $defaultYear;
-        if (!in_array($fiscalYear, $availableYears))
-            $availableYears[] = $fiscalYear;
-        rsort($availableYears);
+        // Get available years for filter (Kept for legacy support or future use)
+        $availableYears = [$defaultYear];
 
         $totalPolri = Satker::sum('polri_count');
         $totalPns = Satker::sum('pns_count');
         $totalPersonnel = $totalPolri + $totalPns;
 
-        $submittedCount = KaporSubmission::where('fiscal_year', $fiscalYear)->count();
+        // Count Personnel who have kapor_sizes data (Profile Attribute)
+        $submittedCount = Personnel::whereNotNull('kapor_sizes')->count();
         $pendingCount = $totalPersonnel - $submittedCount;
         $fillRate = $totalPersonnel > 0 ? round(($submittedCount / $totalPersonnel) * 100, 1) : 0;
 
@@ -68,7 +58,7 @@ class DashboardController extends Controller
             'total_pns' => $totalPns,
             'total_satkers' => Satker::count(),
             'total_submissions' => $submittedCount,
-            'personnel_submitted' => $submittedCount,
+            'personnel_submitted' => $submittedCount, // Now consistent
             'personnel_pending' => $pendingCount,
             'fill_rate' => $fillRate,
             'total_kapor_items' => KaporItem::where('is_active', true)->count(),
@@ -80,8 +70,9 @@ class DashboardController extends Controller
         $poldaId = Satker::where('code', 'POLDA-NTB')->value('id');
         $satkerStats = Satker::query()
             ->selectRaw('satkers.*, (satkers.polri_count + satkers.pns_count) as total_personnel')
-            ->withCount(['personnels as submitted_count' => function (\Illuminate\Database\Eloquent\Builder $q) use ($fiscalYear) {
-            $q->whereHas('submissions', fn($sq) => $sq->where('fiscal_year', $fiscalYear));
+            ->withCount(['personnels as submitted_count' => function ($q) {
+            // Check if kapor_sizes is not null
+            $q->whereNotNull('kapor_sizes');
         }])
             ->where(function ($query) use ($poldaId) {
             $query->whereNull('parent_id')->orWhere('parent_id', $poldaId);
@@ -102,12 +93,15 @@ class DashboardController extends Controller
     {
         $fiscalYear = Setting::getValue('fiscal_year', date('Y'));
 
+        $submittedCount = Personnel::whereNotNull('kapor_sizes')->count();
+        $totalPersonnel = Personnel::count();
+
         $stats = [
-            'total_personnel' => Personnel::count(),
+            'total_personnel' => $totalPersonnel,
             'total_satkers' => Satker::count(),
-            'total_submissions' => KaporSubmission::where('fiscal_year', $fiscalYear)->count(),
-            'personnel_submitted' => Personnel::whereHas('submissions', fn($q) => $q->where('fiscal_year', $fiscalYear))->count(),
-            'personnel_pending' => Personnel::whereDoesntHave('submissions', fn($q) => $q->where('fiscal_year', $fiscalYear))->count(),
+            'total_submissions' => $submittedCount,
+            'personnel_submitted' => $submittedCount,
+            'personnel_pending' => $totalPersonnel - $submittedCount,
             'fiscal_year' => $fiscalYear,
         ];
 
@@ -122,7 +116,7 @@ class DashboardController extends Controller
 
         $totalPersonnel = Personnel::where('satker_id', $satkerId)->count();
         $submittedCount = Personnel::where('satker_id', $satkerId)
-            ->whereHas('submissions', fn($q) => $q->where('fiscal_year', $fiscalYear))
+            ->whereNotNull('kapor_sizes')
             ->count();
 
         $stats = [
@@ -136,7 +130,7 @@ class DashboardController extends Controller
 
         $pendingPersonnel = Personnel::with(['user', 'rank'])
             ->where('satker_id', $satkerId)
-            ->whereDoesntHave('submissions', fn($q) => $q->where('fiscal_year', $fiscalYear))
+            ->whereNull('kapor_sizes')
             ->limit(20)
             ->get();
 
@@ -148,17 +142,14 @@ class DashboardController extends Controller
         $fiscalYear = Setting::getValue('fiscal_year', date('Y'));
         $personnel = $user->personnel;
 
-        $submissions = [];
+        $kaporSizes = [];
         $hasSubmitted = false;
 
         if ($personnel) {
-            $submissions = KaporSubmission::with(['kaporItem', 'kaporSize'])
-                ->where('personnel_id', $personnel->id)
-                ->where('fiscal_year', $fiscalYear)
-                ->get();
-            $hasSubmitted = $submissions->isNotEmpty();
+            $kaporSizes = $personnel->kapor_sizes ?? [];
+            $hasSubmitted = !empty($kaporSizes);
         }
 
-        return view('dashboard.personil', compact('user', 'personnel', 'submissions', 'hasSubmitted', 'fiscalYear'));
+        return view('dashboard.personil', compact('user', 'personnel', 'kaporSizes', 'hasSubmitted', 'fiscalYear'));
     }
 }

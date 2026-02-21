@@ -41,7 +41,7 @@
         <div class="stat-icon {{ $hasSubmitted ? 'green' : 'yellow' }}">
             <i class="ri-{{ $hasSubmitted ? 'check-double' : 'edit' }}-line"></i>
         </div>
-        <div class="stat-value">{{ $submissions->count() }}</div>
+        <div class="stat-value">{{ is_array($kaporSizes) ? count(array_filter($kaporSizes)) : 0 }}</div>
         <div class="stat-label">Item Terisi</div>
     </div>
     <div class="stat-card">
@@ -87,15 +87,36 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($submissions as $idx => $sub)
-                    <tr>
-                        <td>{{ $idx + 1 }}</td>
-                        <td><span class="badge badge-info">{{ str_replace('_', ' ', $sub->kaporItem->category ?? '-') }}</span></td>
-                        <td style="font-weight:600;">{{ $sub->kaporItem->item_name ?? '-' }}</td>
-                        <td><span style="font-weight:700; color:var(--primary);">{{ $sub->kaporSize->size_label ?? '-' }}</span></td>
-                        <td>{{ $sub->created_at->format('d M Y, H:i') }}</td>
-                    </tr>
+                    @php
+                        $itemMap = [
+                            'topi' => ['label' => 'TUTUP KEPALA', 'category' => 'Tutup Kepala'],
+                            'jilbab' => ['label' => 'Jilbab', 'category' => 'Tutup Kepala'],
+                            'kemeja' => ['label' => 'Kemeja (PDH/PDL)', 'category' => 'Tutup Badan'],
+                            'celana' => ['label' => 'Celana/Rok', 'category' => 'Tutup Badan'],
+                            'jaket' => ['label' => 'Jaket', 'category' => 'Tutup Badan'],
+                            'olahraga' => ['label' => 'T-Shirt/Olahraga', 'category' => 'Tutup Badan'],
+                            'sabuk' => ['label' => 'Sabuk', 'category' => 'Perlengkapan'],
+                            'sepatu_dinas' => ['label' => 'Sepatu Dinas', 'category' => 'Tutup Kaki'],
+                            'sepatu_olahraga' => ['label' => 'Sepatu Olahraga', 'category' => 'Tutup Kaki'],
+                        ];
+                        $idx = 0;
+                    @endphp
+
+                    @foreach($itemMap as $key => $meta)
+                        @if(isset($kaporSizes[$key]) && !empty($kaporSizes[$key]))
+                            <tr>
+                                <td>{{ ++$idx }}</td>
+                                <td><span class="badge badge-info">{{ $meta['category'] }}</span></td>
+                                <td style="font-weight:600;">{{ $meta['label'] }}</td>
+                                <td><span style="font-weight:700; color:var(--primary);">{{ $kaporSizes[$key] }}</span></td>
+                                <td>{{ $personnel->updated_at->format('d M Y, H:i') }}</td>
+                            </tr>
+                        @endif
                     @endforeach
+                    
+                    @if($idx === 0)
+                         <tr><td colspan="5" style="text-align:center; padding:20px;">Belum ada data ukuran.</td></tr>
+                    @endif
                 </tbody>
             </table>
         </div>

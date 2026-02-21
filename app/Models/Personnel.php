@@ -30,12 +30,14 @@ class Personnel extends Model
         'address',
         'religion',
         'is_active',
+        'kapor_sizes',
     ];
 
     protected function casts(): array
     {
         return [
             'is_active' => 'boolean',
+            'kapor_sizes' => 'array',
         ];
     }
 

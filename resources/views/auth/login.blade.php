@@ -133,9 +133,10 @@
         .input-wrap {
             position: relative;
         }
-        .input-wrap i {
+        .form-icon-left {
             position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
             font-size: 18px; color: #94A3B8;
+            pointer-events: none;
         }
         .form-input {
             width: 100%; padding: 12px 14px 12px 44px;
@@ -149,6 +150,23 @@
             box-shadow: 0 0 0 4px rgba(212,175,55,.12);
         }
         .form-input::placeholder { color: #CBD5E1; }
+        
+        .password-toggle {
+            position: absolute;
+            right: 14px;
+            left: auto;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            font-size: 18px;
+            color: #94A3B8;
+            transition: color .2s;
+            user-select: none;
+            z-index: 10;
+        }
+        .password-toggle:hover {
+            color: var(--accent);
+        }
 
         .remember-row {
             display: flex; align-items: center; justify-content: space-between;
@@ -243,7 +261,7 @@
                     <div class="form-group">
                         <label class="form-label">NRP / NIP</label>
                         <div class="input-wrap">
-                            <i class="ri-id-card-line"></i>
+                            <i class="ri-id-card-line form-icon-left"></i>
                             <input
                                 type="text"
                                 name="nrp_nip"
@@ -259,14 +277,17 @@
                     <div class="form-group">
                         <label class="form-label">Password</label>
                         <div class="input-wrap">
-                            <i class="ri-lock-2-line"></i>
+                            <i class="ri-lock-2-line form-icon-left"></i>
                             <input
                                 type="password"
                                 name="password"
+                                id="password"
                                 class="form-input"
+                                style="padding-right: 44px;"
                                 placeholder="••••••••"
                                 required
                             >
+                            <i class="ri-eye-line password-toggle" id="togglePassword"></i>
                         </div>
                     </div>
 
@@ -288,5 +309,19 @@
             </div>
         </div>
     </div>
+    <script>
+        const togglePassword = document.querySelector('#togglePassword');
+        const password = document.querySelector('#password');
+
+        togglePassword.addEventListener('click', function (e) {
+            // toggle the type attribute
+            const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+            password.setAttribute('type', type);
+            
+            // toggle the eye slash icon
+            this.classList.toggle('ri-eye-line');
+            this.classList.toggle('ri-eye-off-line');
+        });
+    </script>
 </body>
 </html>

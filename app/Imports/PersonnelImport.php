@@ -59,6 +59,11 @@ class PersonnelImport implements ToCollection, WithStartRow
         $allSizes = KaporSize::all()->groupBy('kapor_item_id');
 
         foreach ($rows as $rowIndex => $row) {
+            // Ensure row is an array
+            if ($row instanceof Collection) {
+                $row = $row->toArray();
+            }
+
             // Values mapped by index
             $fullName = trim($row[1] ?? '');
             $rankName = strtoupper(trim($row[2] ?? ''));
@@ -145,32 +150,32 @@ class PersonnelImport implements ToCollection, WithStartRow
                         ]);
                     }
 
-                    // Process Kapor Sizes based on column mapping
-                    foreach ($itemMapping as $colIndex => $itemId) {
-                        $sizeLabel = trim($row[$colIndex] ?? '');
-                        if (empty($sizeLabel) || $sizeLabel === '-' || $sizeLabel === '0') {
-                            continue;
-                        }
+                    // Process Kapor Sizes based on column mapping keys
+                    // Dictionary mapping column index to kapor_sizes key
+                    $sizeMapping = [
+                        8 => 'topi', // Col I: TUTUP KEPALA
+                        9 => 'kemeja', // Col J: KEMEJA
+                        10 => 'celana', // Col K: CELANA / ROK
+                        11 => 'olahraga', // Col L: T.SHIRT / OLAHRAGA
+                        12 => 'sepatu_dinas', // Col M: SEPATU DINAS
+                        13 => 'sepatu_olahraga', // Col N: SEPATU OLAHRAGA
+                        14 => 'jaket', // Col O: JAKET
+                        15 => 'sabuk', // Col P: SABUK
+                        16 => 'jilbab', // Col Q: JILBAB
+                    ];
 
-                        $itemSizes = $allSizes->get($itemId);
-                        if ($itemSizes) {
-                            // Find matching size label (case insensitive)
-                            $size = $itemSizes->first(fn($s) => strtoupper($s->size_label) === strtoupper($sizeLabel));
+                    $kaporSizes = $personnel->kapor_sizes ?? [];
 
-                            // If not found, try to find a partial match or create if needed? 
-                            // Better stay safe and only import known sizes.
-                            if ($size) {
-                                KaporSubmission::updateOrCreate(
-                                [
-                                    'personnel_id' => $personnel->id,
-                                    'kapor_item_id' => $itemId,
-                                    'fiscal_year' => $fiscalYear,
-                                ],
-                                ['kapor_size_id' => $size->id]
-                                );
-                            }
+                    foreach ($sizeMapping as $colIndex => $key) {
+                        $sizeVal = trim($row[$colIndex] ?? '');
+                        if (!empty($sizeVal) && $sizeVal !== '-' && $sizeVal !== '0') {
+                            $kaporSizes[$key] = $sizeVal;
                         }
                     }
+
+                    // Save decoupled sizes
+                    $personnel->kapor_sizes = $kaporSizes;
+                    $personnel->save();
                 });
                 $this->successCount++;
             }

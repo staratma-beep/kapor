@@ -88,6 +88,9 @@ Route::middleware(['auth', 'role:admin|superadmin'])->prefix('admin')->name('adm
     Route::get('/personnel/template', [\App\Http\Controllers\Admin\PersonnelController::class , 'downloadTemplate'])->name('personnel.template');
     Route::post('/personnel/import', [\App\Http\Controllers\Admin\PersonnelController::class , 'import'])->name('personnel.import');
     Route::delete('/personnel/bulk-delete', [\App\Http\Controllers\Admin\PersonnelController::class , 'bulkDeleteBySatker'])->name('personnel.bulk-delete');
+    Route::get('/personnel/export-rekap', [\App\Http\Controllers\Admin\PersonnelController::class , 'exportRekap'])->name('personnel.export-rekap');
+    Route::resource('kapor-items', \App\Http\Controllers\Admin\KaporItemController::class)->except(['create', 'edit', 'show']);
+
     Route::get('/personnel/print-satker', [\App\Http\Controllers\Admin\PersonnelController::class , 'printSatker'])->name('personnel.print-satker');
     Route::get('/personnel', [\App\Http\Controllers\Admin\PersonnelController::class , 'index'])->name('personnel.index');
     Route::post('/personnel', [\App\Http\Controllers\Admin\PersonnelController::class , 'store'])->name('personnel.store');
